@@ -4,6 +4,7 @@ import os
 import sys
 import time
 
+from dateutil.parser import parse
 import pandas as pd
 import mpu
 
@@ -76,3 +77,11 @@ def checkCSV(path):
     else:
         print("File does not exist: ", path)
         sys.exit()
+
+def is_date(string, fuzzy=False):
+    try:
+        parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False

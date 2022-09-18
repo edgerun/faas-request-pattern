@@ -11,13 +11,15 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 from utils import checkCSV, load_Topology, get_max_bounds_topology, load_Trips, get_nearest_cell_tower, load_Requests, \
-    saveCSV
+    saveCSV, is_date
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Generate Request Pattern")
     parser.add_argument('--name', help='naming of the request pattern output files')
     parser.add_argument('--topology', help='path to topology csv')
     parser.add_argument('--trips', help='path to trips csv')
+    parser.add_argument('--start', help='start date time')
+    parser.add_argument('--end', help='end date time')
     args = parser.parse_args()
     pickup_path = 'output/' + args.name
 
@@ -37,13 +39,33 @@ if __name__ == '__main__':
         print("Please set --name !")
         sys.exit()
 
+    if args.start is None:
+        print("Please set --start !")
+        sys.exit()
+
+    if not is_date(args.start):
+        print("Please enter a correct start date!")
+        sys.exit()
+
+    if args.end is None:
+        print("Please set --end !")
+        sys.exit()
+
+    if not is_date(args.end):
+        print("Please enter a correct end date!")
+        sys.exit()
+
+    if args.start > args.end:
+        print("The start date has to be smaller than the end date!")
+        sys.exit()
+
     df_topology = load_Topology(args.topology)
 
     df_trips = load_Trips(args.trips)
     df_trips['pickup_datetime'] = pandas.to_datetime(df_trips['pickup_datetime'])
     firstDate = min(df_trips['pickup_datetime'])
-    fromD = datetime.datetime(firstDate.year, firstDate.month, firstDate.day, 18, 0, 0)
-    toD = datetime.datetime(firstDate.year, firstDate.month, firstDate.day, 18, 15, 0)
+    fromD = datetime.datetime.fromisoformat(args.start)
+    toD = datetime.datetime.fromisoformat(args.end)
     mask = (df_trips['pickup_datetime'] >= fromD) & (df_trips['pickup_datetime'] <= toD)
     df_trips = df_trips.loc[mask]
     request_cols = ['timestamp', 'requests', 'cell', 'cloudlet']
@@ -74,7 +96,7 @@ if __name__ == '__main__':
         # plt.scatter(df['timestamp'], df['requests'])  # 1s wide bars
         # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
         # plt.show()
-    
+
     # add rows for requests > 1
     for i, row in pickups.iterrows():
 
