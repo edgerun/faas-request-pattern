@@ -74,13 +74,17 @@ if __name__ == '__main__':
     requests = []
     pool = ThreadPool(50)
     results = []
+    results_sum = []
     values = df_topology.values
     for v in df_trips.values:
         results.append(pool.apply_async(get_nearest_cell_tower, args=(v[0], v[1], v[3], v[2], values)))
     pool.close()
     pool.join()
-    results = [r.get() for r in results]
-    pickups = pandas.DataFrame(results, columns=request_cols)
+    for r in results:
+        r = r.get()
+        if r:
+            results_sum.append(r)
+    pickups = pandas.DataFrame(results_sum, columns=request_cols)
     pickups['cell'] = pickups['cell'].astype(str)
 
     print("fix multiple requests...")
@@ -99,7 +103,6 @@ if __name__ == '__main__':
 
     # add rows for requests > 1
     for i, row in pickups.iterrows():
-
         r = row['requests']
         if r > 1:
             rows_to_delete.append(i)

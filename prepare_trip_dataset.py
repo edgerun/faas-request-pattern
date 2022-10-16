@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 import argparse
@@ -63,4 +64,6 @@ if __name__ == '__main__':
             p = 'data/trips/' + args.name + "/"
             os.makedirs(p, exist_ok=True)
             df.to_csv(p + filename)
+        df = pd.concat(map(pd.read_csv, glob.glob(os.path.join("data/trips/" + args.name + "/", "*.csv"))))
+        df.to_csv("data/trips/" + args.name + "/trips.csv")
 

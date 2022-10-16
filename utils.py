@@ -31,7 +31,11 @@ def distance(point1, point2):
 
 def get_nearest_cell_tower(date, passengers, lat, lon, df):
     minCell = min(df, key=lambda p: distance((lat, lon), (p[3], p[2])))
-    return [date, passengers, minCell[1], minCell[5]]
+    d = distance((lat, lon), (minCell[3], minCell[2]))
+    if float(d) <= 0.5:
+        return [date, passengers, minCell[1], minCell[4]]
+    else:
+        return []
 
 # returns [max_lat, min_lat, max_lon, min_lon]
 def get_max_bounds_trips(df):
@@ -50,7 +54,7 @@ def get_max_bounds_topology(df):
     return [max_lat, min_lat, max_lon, min_lon]
 
 def load_Topology(path):
-    col_list = ['radio', 'cell', 'lon', 'lat', 'distances', 'cloudlet']
+    col_list = ['radio', 'cell', 'lon', 'lat', 'cloudlet']
     print("load topology dataset...")
     df = pd.read_csv(path,
                      skipinitialspace=True, usecols=col_list)

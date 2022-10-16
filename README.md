@@ -15,21 +15,19 @@ It creates a new csv file and names it like the given `--name`
 parameter. The `--trip` data got filtered by the maximum boundaries of the given `--topology` file.
 
 ## generate request pattern
-`python generate_request_pattern.py --name example --trips data/trips/example.csv --topology data/topologies/example.csv`
+To generate the pattern use `python generate_request_pattern.py --name example --trips data/trips/example.csv --topology data/topologies/example.csv --start "2013-10-01 18:00:00" --end "2013-10-01 19:00:00"` where the start and end parameters define the time range in which the pattern will be created.
+The ouput files are saved in a seperate folder in `output/${name}/1_pickups.csv` where the number in front of the filename indicates the cloudlet number in the selected topology. The file contains the time deltas of each request in the defined time range. 
+`[1.5, 1.5, 1.5, 1.5]` means e.g. that 4 requests were sent to the specific cloudlet within an interval of 1.5 seconds.
 
 <b>trip input:</b><br>
 - <b>medallion:</b> string
 - <b>pickup_datetime:</b> string
-- <b>dropoff_datetime:</b> string
 - <b>passenger_count:</b> float
 - <b>pickup_longitude:</b> float
 - <b>pickup_latitude:</b> float
-- <b>dropoff_longitude:</b> float
-- <b>dropoff_latitude:</b> float
 
 <b>topology input:</b><br>
-- <b>radio:</b> string
 - <b>cell:</b> string
 - <b>lon:</b> float
 - <b>lat:</b> float
-- <b>distances:</b> float
+- <b>cloudlet:</b> string
