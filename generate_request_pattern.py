@@ -1,14 +1,9 @@
 import argparse
-import csv
 import datetime
 import os
 import sys
-import time
 from multiprocessing.pool import ThreadPool
-import matplotlib.dates as mdates
 import pandas
-import seaborn as sns
-from matplotlib import pyplot as plt
 
 from utils import checkCSV, load_Topology, get_max_bounds_topology, load_Trips, get_nearest_cell_tower, load_Requests, \
     saveCSV, is_date
@@ -39,35 +34,31 @@ if __name__ == '__main__':
         print("Please set --name !")
         sys.exit()
 
-    if args.start is None:
-        print("Please set --start !")
-        sys.exit()
+    if args.start is not None:
+        if not is_date(args.start):
+            print("Please enter a correct start date!")
+            sys.exit()
 
-    if not is_date(args.start):
-        print("Please enter a correct start date!")
-        sys.exit()
+    if args.end is not None:
+        if not is_date(args.end):
+            print("Please enter a correct end date!")
+            sys.exit()
+        if args.start > args.end:
+            print("The start date has to be smaller than the end date!")
+            sys.exit()
 
-    if args.end is None:
-        print("Please set --end !")
-        sys.exit()
-
-    if not is_date(args.end):
-        print("Please enter a correct end date!")
-        sys.exit()
-
-    if args.start > args.end:
-        print("The start date has to be smaller than the end date!")
-        sys.exit()
 
     df_topology = load_Topology(args.topology)
 
     df_trips = load_Trips(args.trips)
     df_trips['pickup_datetime'] = pandas.to_datetime(df_trips['pickup_datetime'])
-    firstDate = min(df_trips['pickup_datetime'])
-    fromD = datetime.datetime.fromisoformat(args.start)
-    toD = datetime.datetime.fromisoformat(args.end)
-    mask = (df_trips['pickup_datetime'] >= fromD) & (df_trips['pickup_datetime'] <= toD)
-    df_trips = df_trips.loc[mask]
+
+    if args.start is not None and args.end is not None:
+        fromD = datetime.datetime.fromisoformat(args.start)
+        toD = datetime.datetime.fromisoformat(args.end)
+        mask = (df_trips['pickup_datetime'] >= fromD) & (df_trips['pickup_datetime'] <= toD)
+        df_trips = df_trips.loc[mask]
+
     request_cols = ['timestamp', 'requests', 'cell', 'cloudlet']
 
     print("generating pickup data...")
@@ -111,11 +102,11 @@ if __name__ == '__main__':
     pickups.drop(rows_to_delete, inplace=True)
     new_df = pandas.DataFrame(temp_rows, columns=request_cols)
     pickups = pandas.concat([pickups, new_df], keys=request_cols)
-    cell_dfs = dict(tuple(pickups.groupby('cloudlet')))
+    cloudletDfs = dict(tuple(pickups.groupby('cloudlet')))
     print("calc time delta between requests...")
     if not os.path.exists(pickup_path):
         os.mkdir(pickup_path)
-    for i, df in cell_dfs.items():
+    for i, df in cloudletDfs.items():
         df.sort_values(by=['timestamp'], inplace=True)
         lastTimestamp = 0
         first = True

@@ -89,3 +89,7 @@ def is_date(string, fuzzy=False):
 
     except ValueError:
         return False
+
+def getNearestKeyToValue(df, value):
+    k, v = min(df.items(), key=lambda x: abs(value - x[1]))
+    return k

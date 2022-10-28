@@ -128,7 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data
+data/trips/*
+data/topologies/*
+!data/trips/minInterval.csv
+!data/trips/avgInterval.csv
+!data/trips/maxInterval.csv
 output/*
 .idea
 trip_data
