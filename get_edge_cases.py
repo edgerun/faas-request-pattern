@@ -13,12 +13,21 @@ from utils import load_Trips, checkCSV, getNearestKeyToValue
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Get edge cases of dataset")
     parser.add_argument('--trips', help='path to trips csv')
+    parser.add_argument('--name', help='name of trip scenario')
     args = parser.parse_args()
     if args.trips is None:
         print("Please set --trips !")
         sys.exit()
     else:
         checkCSV(args.trips)
+
+    if args.name is None:
+        print("Please set --name !")
+        sys.exit()
+
+    p = 'data/trips/' + args.name
+
+    startTime = time.time()
     df_trips = load_Trips(args.trips)
     df_trips['pickup_datetime'] = pandas.to_datetime(df_trips['pickup_datetime'])
     firstDate = min(df_trips['pickup_datetime'])
@@ -27,21 +36,19 @@ if __name__ == '__main__':
     df_interval = {}
     interval_sum = {}
     i = 0
-    startTime = time.time()
     while date <= lastDate:
         start = date
         end = date + timedelta(minutes=10)
         date = date + timedelta(minutes=5)
-        mask = (df_trips['pickup_datetime'] >= start) & (df_trips['pickup_datetime'] <= end)
-        df_temp = df_trips.loc[mask]
+        df_temp = df_trips.loc[((df_trips['pickup_datetime'] >= start) & (df_trips['pickup_datetime'] <= end))]
         sumPickups = sum(df_temp['passenger_count'])
-        interval_sum[i] = sumPickups
-        df_interval[i] = df_temp
-        i = i + 1
-    print("--- %s seconds ---" % (time.time() - startTime))
+        if sumPickups > 0:
+            interval_sum[i] = sumPickups
+            df_interval[i] = df_temp
+            i = i + 1
 
     p5 = np.percentile(list(interval_sum.values()), 5)
-    avg = sum(interval_sum.values()) / float(len(interval_sum))
+    avg = sum(list(interval_sum.values())) / float(len(interval_sum))
     p95 = np.percentile(list(interval_sum.values()), 95)
     print("5th percentile: ", p5)
     print("Average: ", avg)
@@ -52,9 +59,9 @@ if __name__ == '__main__':
     minDf = df_interval[minKey]
     maxDf = df_interval[maxKey]
     avgDf = df_interval[avgKey]
-    minDf.to_csv('data/trips/minInterval.csv', index=False)
-    maxDf.to_csv('data/trips/maxInterval.csv', index=False)
-    avgDf.to_csv('data/trips/avgInterval.csv', index=False)
+    minDf.to_csv(p + '/minInterval.csv', index=False)
+    maxDf.to_csv(p + '/maxInterval.csv', index=False)
+    avgDf.to_csv(p + '/avgInterval.csv', index=False)
 
     plotMinDf = minDf.set_index('pickup_datetime')
     plotMaxDf = maxDf.set_index('pickup_datetime')
@@ -67,17 +74,18 @@ if __name__ == '__main__':
     plt.ylabel('pickups')
     plt.xlabel('time')
     plt.title("min. interval")
-    plt.savefig('minInterval.png')
+    plt.savefig(p + '/minInterval.png')
     plt.cla()
     plotAvgDf.plot(x='pickup_datetime', kind='line')
     plt.ylabel('pickups')
     plt.xlabel('time')
     plt.title("avg. interval")
-    plt.savefig('avgInterval.png')
+    plt.savefig(p + '/avgInterval.png')
     plt.cla()
     plotMaxDf.plot(x='pickup_datetime', kind='line')
     plt.ylabel('pickups')
     plt.xlabel('time')
     plt.title("max. interval")
-    plt.savefig('maxInterval.png')
+    plt.savefig(p + '/maxInterval.png')
     plt.cla()
+    print("time needed (in minutes): " + str((time.time() - startTime) / 60))
