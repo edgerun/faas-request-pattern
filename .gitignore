@@ -133,3 +133,4 @@ output/*
 .idea/*
 trip_data/*
 !__init__.py
+stats.json

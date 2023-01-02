@@ -1,6 +1,6 @@
 # faas-request-pattern
 
-##data
+## data
 We use the generated topology datasets from https://github.com/edgerun/faas-topologies and the public available taxi trip data from https://chriswhong.com/open-data/foil_nyc_taxi/
 
 - place the  `.csv` <i>topology</i> data file into the `data/topologies` folder
