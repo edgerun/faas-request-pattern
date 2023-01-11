@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import pickle
 import sys
 from multiprocessing.pool import ThreadPool
 import pandas
@@ -123,9 +124,18 @@ if __name__ == '__main__':
                 lastTimestamp = float(str(row['timestamp'].timestamp()))
                 df.at[k, 'timestamp'] = diff
         df.drop(columns=["requests", "cell", "cloudlet"], inplace=True)
-        path = pickup_path + "/" + str(i) + '_pickups.csv'
-        df.to_csv(path, header=False, index=False)
-        print("save as csv in ", path)
+        pathCSV = pickup_path + "/" + str(i) + '_pickups.csv'
+        pathPkl = pickup_path + "/" + str(i) + '_pickups.pkl'
+        df.to_csv(pathCSV, header=False, index=False)
+
+        pklArray = []
+        for x in df['timestamp'].values:
+            print(x)
+            pklArray.append(x)
+        with open(pathPkl, 'wb') as f:
+            pickle.dump(pklArray, f)
+        # output = open(pathPkl, 'wb')
+        # output.close()
 
 
 
