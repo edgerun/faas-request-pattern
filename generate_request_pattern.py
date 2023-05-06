@@ -112,11 +112,11 @@ if __name__ == '__main__':
         lastTimestamp = 0
         first = True
         for k, row in df.iterrows():
-            # set 0.5s for first request
+            # set 11s for first request
             if first:
                 first = False
                 lastTimestamp = float(str(row['timestamp'].timestamp()))
-                df.at[k, 'timestamp'] = 0.5
+                df.at[k, 'timestamp'] = 11
             else:
                 diff = float(str(row['timestamp'].timestamp())) - lastTimestamp
                 if diff == 0:
