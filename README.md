@@ -1,5 +1,5 @@
 # faas-request-pattern
-
+Framework to generate request pattern, based on the faas-topologies repository generated topology datasets.
 ## data
 We use the generated topology datasets from https://github.com/edgerun/faas-topologies and the public available taxi trip data from https://chriswhong.com/open-data/foil_nyc_taxi/
 
