@@ -5,6 +5,7 @@ import pickle
 import sys
 from multiprocessing.pool import ThreadPool
 import pandas
+from matplotlib import pyplot as plt, dates
 
 from utils import checkCSV, load_Topology, get_max_bounds_topology, load_Trips, get_nearest_cell_tower, load_Requests, \
     saveCSV, is_date
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     df_trips = load_Trips(args.trips)
     df_trips['pickup_datetime'] = pandas.to_datetime(df_trips['pickup_datetime'])
 
+
     if args.start is not None and args.end is not None:
         fromD = datetime.datetime.fromisoformat(args.start)
         toD = datetime.datetime.fromisoformat(args.end)
@@ -83,15 +85,16 @@ if __name__ == '__main__':
     temp_rows = []
     rows_to_delete = []
 
+
     # show plots
-    # df_plot = dict(tuple(pickups.groupby('cloudlet')))
-    # for i, df in df_plot.items():
-        # df = df.groupby(["timestamp"]).requests.sum().reset_index()
-        # df["timestamp"] = pandas.to_datetime(df["timestamp"])
-        # plt.figure()
-        # plt.scatter(df['timestamp'], df['requests'])  # 1s wide bars
-        # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-        # plt.show()
+    df_plot = dict(tuple(pickups.groupby('cloudlet')))
+    for i, df in df_plot.items():
+        df = df.groupby(["timestamp"]).requests.sum().reset_index()
+        df["timestamp"] = pandas.to_datetime(df["timestamp"])
+        plt.figure()
+        plt.scatter(df['timestamp'], df['requests'])  # 1s wide bars
+        plt.gca().xaxis.set_major_formatter(dates.DateFormatter("%H:%M:%S"))
+        plt.show()
 
     # add rows for requests > 1
     for i, row in pickups.iterrows():
